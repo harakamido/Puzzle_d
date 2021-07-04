@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <conio.h>
 
@@ -31,8 +32,39 @@ char cTypes[][2 + 1] = {
 };
 
 int nField[FIELD_WIDTH][FIELD_HEIGHT];
+int nCheck[FIELD_WIDTH][FIELD_HEIGHT];
 int nCursorX, nCursorY;
 int nSelectX = -1, nSelectY = -1;
+
+int getDropCount(int x, int y, int type, int count) {
+	if ((x < 0) || (x >= FIELD_WIDTH)
+		|| (y < 0) || (y >= FIELD_HEIGHT)
+		|| nCheck[x][y] || (nField[x][y] == TYPE_NONE) || (nField[x][y] != type))
+		return count;
+
+	count++;
+	nCheck[x][y] = true;
+
+	count = getDropCount(x, y - 1, type, count);
+	count = getDropCount(x - 1, y, type, count);
+	count = getDropCount(x, y + 1, type, count);
+	count = getDropCount(x + 1, y, type, count);
+
+	return count;
+}
+
+void deleteDropAll() {
+	memset(nCheck, 0, sizeof(nCheck));
+
+	for (int y = 0; y < FIELD_HEIGHT; y++) {
+		for (int x = 0; x < FIELD_WIDTH; x++) {
+			int n = getDropCount(x, y, nField[x][y], 0);
+			if (n >= 3) {
+				nField[x][y] = TYPE_NONE;
+			}
+		}
+	}
+}
 
 void display() {
 	system("cls");
@@ -83,6 +115,8 @@ int main()
 					int temp = nField[nCursorX][nCursorY];
 					nField[nCursorX][nCursorY] = nField[nSelectX][nSelectY];
 					nField[nSelectX][nSelectY] = temp;
+
+					deleteDropAll();
 
 					nSelectX = nSelectY = -1;
 				}
