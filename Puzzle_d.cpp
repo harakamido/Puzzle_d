@@ -32,6 +32,7 @@ char cTypes[][2 + 1] = {
 
 int nField[FIELD_WIDTH][FIELD_HEIGHT];
 int nCursorX, nCursorY;
+int nSelectX = -1, nSelectY = -1;
 
 void display() {
 	system("cls");
@@ -42,8 +43,12 @@ void display() {
 			else
 				printf("%s", cTypes[nField[x][y]]);
 		}
+		if (y == nSelectY)
+			printf("←");
 		printf("\n");
 	}
+	for (int x = 0; x < FIELD_WIDTH; x++)
+		printf("%s", (x == nSelectX) ? "↑" : "  ");
 }
 
 int main()
@@ -69,6 +74,10 @@ int main()
 			case 's': nCursorY++; break;
 			case 'a': nCursorX--; break;
 			case 'd': nCursorX++; break;
+			default:
+				nSelectX = nCursorX;
+				nSelectY = nCursorY;
+				break;
 			}
 			display();
 		}
