@@ -124,7 +124,12 @@ int main()
 						}
 					}
 				}
-
+				for (int x = 0; x < FIELD_WIDTH; x++) {
+					if (nField[x][0] == TYPE_NONE) {
+						nField[x][0] = TYPE_DROP_0 + rand() % DROP_TYPE_MAX;
+						bLocked = true;
+					}
+				}
 				if (!bLocked)
 					deleteDropAll();
 			}
@@ -147,14 +152,23 @@ int main()
 						nSelectY = nCursorY;
 					}
 					else {
-						int temp = nField[nCursorX][nCursorY];
-						nField[nCursorX][nCursorY] = nField[nSelectX][nSelectY];
-						nField[nSelectX][nSelectY] = temp;
+						int distance = abs(nSelectX - nCursorX) + abs(nSelectY - nCursorY);
+						if (distance == 0) {
+							nSelectX = nSelectY = -1;
+						}
+						else if (distance == 1) {
+							int temp = nField[nCursorX][nCursorY];
+							nField[nCursorX][nCursorY] = nField[nSelectX][nSelectY];
+							nField[nSelectX][nSelectY] = temp;
 
-						deleteDropAll();
+							deleteDropAll();
 
-						nSelectX = nSelectY = -1;
-						bLocked = true;
+							nSelectX = nSelectY = -1;
+							bLocked = true;
+						}
+						else {
+							printf("\a");
+						}
 					}
 					break;
 				}
