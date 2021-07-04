@@ -35,6 +35,7 @@ int nField[FIELD_WIDTH][FIELD_HEIGHT];
 int nCheck[FIELD_WIDTH][FIELD_HEIGHT];
 int nCursorX, nCursorY;
 int nSelectX = -1, nSelectY = -1;
+bool bLocked = true;
 
 int getDropCount(int x, int y, int type, int count) {
 	if ((x < 0) || (x >= FIELD_WIDTH)
@@ -75,6 +76,7 @@ void deleteDropAll() {
 			int n = getDropCount(x, y, nField[x][y], 0);
 			if (n >= 3) {
 				deleteDrop(x, y, nField[x][y]);
+				bLocked = true;
 			}
 		}
 	}
@@ -84,7 +86,7 @@ void display() {
 	system("cls");
 	for (int y = 0; y < FIELD_HEIGHT; y++) {
 		for (int x = 0; x < FIELD_WIDTH; x++) {
-			if ((x == nCursorX) && (y == nCursorY))
+			if ((x == nCursorX) && (y == nCursorY) && (!bLocked))
 				printf("  ");
 			else
 				printf("%s", cTypes[nField[x][y]]);
@@ -111,32 +113,53 @@ int main()
 		if (t < time(NULL)) {
 			t = time(NULL);
 
+			if (bLocked) {
+				bLocked = false;
+				for (int y = FIELD_HEIGHT - 2; y >= 0; y--) {
+					for (int x = 0; x < FIELD_WIDTH; x++) {
+						if ((nField[x][y] != TYPE_NONE) && (nField[x][y + 1] == TYPE_NONE)) {
+							nField[x][y + 1] = nField[x][y];
+							nField[x][y] = TYPE_NONE;
+							bLocked = true;
+						}
+					}
+				}
+
+				if (!bLocked)
+					deleteDropAll();
+			}
 			display();
 		}
 
 		if (_kbhit()) {
-			switch (_getch()) {
-			case 'w': nCursorY--; break;
-			case 's': nCursorY++; break;
-			case 'a': nCursorX--; break;
-			case 'd': nCursorX++; break;
-			default:
-				if (nSelectX < 0) {
-					nSelectX = nCursorX;
-					nSelectY = nCursorY;
-				}
-				else {
-					int temp = nField[nCursorX][nCursorY];
-					nField[nCursorX][nCursorY] = nField[nSelectX][nSelectY];
-					nField[nSelectX][nSelectY] = temp;
-
-					deleteDropAll();
-
-					nSelectX = nSelectY = -1;
-				}
-				break;
+			if (bLocked) {
+				_getch();
 			}
-			display();
+			else {
+				switch (_getch()) {
+				case 'w': nCursorY--; break;
+				case 's': nCursorY++; break;
+				case 'a': nCursorX--; break;
+				case 'd': nCursorX++; break;
+				default:
+					if (nSelectX < 0) {
+						nSelectX = nCursorX;
+						nSelectY = nCursorY;
+					}
+					else {
+						int temp = nField[nCursorX][nCursorY];
+						nField[nCursorX][nCursorY] = nField[nSelectX][nSelectY];
+						nField[nSelectX][nSelectY] = temp;
+
+						deleteDropAll();
+
+						nSelectX = nSelectY = -1;
+						bLocked = true;
+					}
+					break;
+				}
+				display();
+			}
 		}
 	}
 }
