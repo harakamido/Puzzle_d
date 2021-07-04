@@ -5,6 +5,30 @@
 
 #define FIELD_WIDTH 8
 #define FIELD_HEIGHT 8
+#define DROP_TYPE_MAX 7
+
+enum {
+	TYPE_NONE,
+	TYPE_DROP_0,
+	TYPE_DROP_1,
+	TYPE_DROP_2,
+	TYPE_DROP_3,
+	TYPE_DROP_4,
+	TYPE_DROP_5,
+	TYPE_DROP_6,
+	TYPE_MAX
+};
+
+char cTypes[][2 + 1] = {
+	"　", // TYPE_NONE,
+	"〇", // TYPE_DROP_0,
+	"◎", // TYPE_DROP_1,
+	"□", // TYPE_DROP_2,
+	"☆", // TYPE_DROP_3,
+	"◇", // TYPE_DROP_4
+	"●", // TYPE_DROP_5,
+	"△", // TYPE_DROP_6,
+};
 
 int nField[FIELD_WIDTH][FIELD_HEIGHT];
 int nCursorX, nCursorY;
@@ -14,9 +38,9 @@ void display() {
 	for (int y = 0; y < FIELD_HEIGHT; y++) {
 		for (int x = 0; x < FIELD_WIDTH; x++) {
 			if ((x == nCursorX) && (y == nCursorY))
-				printf("　");
+				printf("  ");
 			else
-				printf("〇");
+				printf("%s", cTypes[nField[x][y]]);
 		}
 		printf("\n");
 	}
@@ -24,6 +48,12 @@ void display() {
 
 int main()
 {
+	srand((unsigned int)time(NULL));
+
+	for (int y = 0; y < FIELD_HEIGHT; y++)
+		for (int x = 0; x < FIELD_WIDTH; x++)
+			nField[x][y] = TYPE_DROP_0 + rand() % DROP_TYPE_MAX;
+
 	time_t t = time(NULL);
 
 	while (1) {
