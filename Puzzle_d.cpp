@@ -53,6 +53,20 @@ int getDropCount(int x, int y, int type, int count) {
 	return count;
 }
 
+void deleteDrop(int x, int y, int type) {
+	if ((x < 0) || (x >= FIELD_WIDTH)
+		|| (y < 0) || (y >= FIELD_HEIGHT)
+		|| (nField[x][y] == TYPE_NONE) || (nField[x][y] != type))
+		return;
+
+	nField[x][y] = TYPE_NONE;
+
+	deleteDrop(x, y - 1, type);
+	deleteDrop(x - 1, y, type);
+	deleteDrop(x, y + 1, type);
+	deleteDrop(x + 1, y, type);
+}
+
 void deleteDropAll() {
 	memset(nCheck, 0, sizeof(nCheck));
 
@@ -60,7 +74,7 @@ void deleteDropAll() {
 		for (int x = 0; x < FIELD_WIDTH; x++) {
 			int n = getDropCount(x, y, nField[x][y], 0);
 			if (n >= 3) {
-				nField[x][y] = TYPE_NONE;
+				deleteDrop(x, y, nField[x][y]);
 			}
 		}
 	}
