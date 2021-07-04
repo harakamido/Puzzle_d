@@ -75,8 +75,17 @@ int main()
 			case 'a': nCursorX--; break;
 			case 'd': nCursorX++; break;
 			default:
-				nSelectX = nCursorX;
-				nSelectY = nCursorY;
+				if (nSelectX < 0) {
+					nSelectX = nCursorX;
+					nSelectY = nCursorY;
+				}
+				else {
+					int temp = nField[nCursorX][nCursorY];
+					nField[nCursorX][nCursorY] = nField[nSelectX][nSelectY];
+					nField[nSelectX][nSelectY] = temp;
+
+					nSelectX = nSelectY = -1;
+				}
 				break;
 			}
 			display();
